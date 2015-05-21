@@ -32,11 +32,12 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 
 
 public class Main implements IXposedHookLoadPackage {
-    public static String mainTag = "IntentHook";
+    public static String mainTag = "IHook";
 
     @Override
     public void handleLoadPackage(LoadPackageParam lpparam) throws Throwable {
 
+        mainTag = mainTag + "-" + lpparam.packageName;
         //系统 app 不监控
         if ((lpparam.appInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0)
             return;
