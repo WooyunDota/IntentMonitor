@@ -29,6 +29,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XC_MethodHook.MethodHookParam;
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
+import android.content.ContextWrapper;
 
 
 public class Main implements IXposedHookLoadPackage {
@@ -71,7 +72,7 @@ public class Main implements IXposedHookLoadPackage {
         );
 
 
-        //由android.content.Context改为ContextWrapper,
+        //由android.content.Context改为ContextWrapper,抽象方法不能 hook
         //hook sendBroadcast(Intent intent)
         //hook sendBroadcast(Intent intent, String receiverPermission)
         //hook sendOrderedBroadcast(Intent intent,String receiverPermission)
@@ -151,12 +152,15 @@ public class Main implements IXposedHookLoadPackage {
                     protected void beforeHookedMethod(MethodHookParam param)
                             throws Throwable {
 
-                        IntentFilter filter = (IntentFilter) param.args[1];
-                        handleFilter(filter);
+
 
                         BroadcastReceiver broad = (BroadcastReceiver) param.args[0];
-                        handleBroad(broad);
+                        if(broad != null)
+                            handleBroad(broad);
 
+                        IntentFilter filter = (IntentFilter) param.args[1];
+                        if(filter != null)
+                            handleFilter(filter);
                     }
 
                 }
@@ -169,11 +173,15 @@ public class Main implements IXposedHookLoadPackage {
                     protected void beforeHookedMethod(MethodHookParam param)
                             throws Throwable {
 
-                        IntentFilter filter = (IntentFilter) param.args[1];
-                        handleFilter(filter);
+
 
                         BroadcastReceiver broad = (BroadcastReceiver) param.args[0];
-                        handleBroad(broad);
+                        if(broad != null)
+                            handleBroad(broad);
+
+                        IntentFilter filter = (IntentFilter) param.args[1];
+                        if(filter != null)
+                            handleFilter(filter);
 
                         String per = (String) param.args[2];
 
@@ -217,10 +225,38 @@ public class Main implements IXposedHookLoadPackage {
 
     }
 
-    //处理 IntentFilter
+    //处理 IntentFilter ,filter 中可能有多个 action/scheme ....
     public void handleFilter(IntentFilter filter) {
 
         String tag = "registerReceiver";
+
+
+            StringBuilder sb = new StringBuilder();
+            Iterator<String> actions = filter.actionsIterator();
+            String action = null;
+            int i = 0;
+            while (actions.hasNext())
+            {
+                action = actions.next();
+                Log.i(mainTag, tag + " action" + i + ":" + action);
+                i++;
+            }
+
+//            String category = filter.getCategory(i);
+//            if (category != null)
+//                Log.i(mainTag, tag + " category"+i+":" + category);
+
+//            String scheme = filter.getDataScheme(0);
+//            if (scheme != null)
+//                Log.i(mainTag, tag + " scheme"+i+":" + scheme);
+
+
+
+    }
+
+
+    public void handleFilter(IntentFilter filter,String tag) {
+
 
         String action = filter.getAction(0);
         if (action != null)
@@ -284,10 +320,6 @@ public class Main implements IXposedHookLoadPackage {
 
         //取得 action
         if (it.getAction() != null) {
-//			for (int i = 0; i < actionFilter.length; i++) {
-//				if(it.getAction() == actionFilter[i] )
-//					return ;
-//			}
             Log.i(mainTag, tag + " Action:" + it.getAction());
         }
 
