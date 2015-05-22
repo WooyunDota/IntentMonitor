@@ -1,35 +1,18 @@
 package org.wooyun.hookintent;
 
-import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
-
-import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.ServiceConnection;
+import android.content.*;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
-import android.text.TextUtils;
 import android.util.Log;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XC_MethodHook.MethodHookParam;
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
-import android.content.ContextWrapper;
+
+import java.util.*;
+import java.util.Map.Entry;
+
+import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 
 
 public class Main implements IXposedHookLoadPackage {
@@ -153,13 +136,12 @@ public class Main implements IXposedHookLoadPackage {
                             throws Throwable {
 
 
-
                         BroadcastReceiver broad = (BroadcastReceiver) param.args[0];
-                        if(broad != null)
+                        if (broad != null)
                             handleBroad(broad);
 
                         IntentFilter filter = (IntentFilter) param.args[1];
-                        if(filter != null)
+                        if (filter != null)
                             handleFilter(filter);
                     }
 
@@ -174,13 +156,12 @@ public class Main implements IXposedHookLoadPackage {
                             throws Throwable {
 
 
-
                         BroadcastReceiver broad = (BroadcastReceiver) param.args[0];
-                        if(broad != null)
+                        if (broad != null)
                             handleBroad(broad);
 
                         IntentFilter filter = (IntentFilter) param.args[1];
-                        if(filter != null)
+                        if (filter != null)
                             handleFilter(filter);
 
                         String per = (String) param.args[2];
@@ -229,18 +210,15 @@ public class Main implements IXposedHookLoadPackage {
     public void handleFilter(IntentFilter filter) {
 
         String tag = "registerReceiver";
-
-
-            StringBuilder sb = new StringBuilder();
-            Iterator<String> actions = filter.actionsIterator();
-            String action = null;
-            int i = 0;
-            while (actions.hasNext())
-            {
-                action = actions.next();
-                Log.i(mainTag, tag + " action" + i + ":" + action);
-                i++;
-            }
+        StringBuilder sb = new StringBuilder();
+        Iterator<String> actions = filter.actionsIterator();
+        String action = null;
+        int i = 0;
+        while (actions.hasNext()) {
+            action = actions.next();
+            Log.i(mainTag, tag + " action" + i + ":" + action);
+            i++;
+        }
 
 //            String category = filter.getCategory(i);
 //            if (category != null)
@@ -250,26 +228,19 @@ public class Main implements IXposedHookLoadPackage {
 //            if (scheme != null)
 //                Log.i(mainTag, tag + " scheme"+i+":" + scheme);
 
-
-
     }
 
 
-    public void handleFilter(IntentFilter filter,String tag) {
-
-
-        String action = filter.getAction(0);
-        if (action != null)
-            Log.i(mainTag, tag + " action:" + action);
-
-        String category = filter.getCategory(0);
-        if (category != null)
-            Log.i(mainTag, tag + " category:" + category);
-
-        String scheme = filter.getDataScheme(0);
-        if (scheme != null)
-            Log.i(mainTag, tag + " scheme: " + scheme);
-
+    public void handleFilter(IntentFilter filter, String tag) {
+        StringBuilder sb = new StringBuilder();
+        Iterator<String> actions = filter.actionsIterator();
+        String action = null;
+        int i = 0;
+        while (actions.hasNext()) {
+            action = actions.next();
+            Log.i(mainTag, tag + " action" + i + ":" + action);
+            i++;
+        }
     }
 
     public void handleBroad(BroadcastReceiver broad) {
